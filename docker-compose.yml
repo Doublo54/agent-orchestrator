@@ -49,7 +49,7 @@ services:
 
     volumes:
       - openclaw_config:/home/node/.openclaw
-      - ./state/openclaw.json:/home/node/.openclaw/openclaw.json:ro
+      - ./state/openclaw.json:/mnt/openclaw.json:ro
       - ./workspace:/home/node/.openclaw/workspace
 
     command:
@@ -57,7 +57,15 @@ services:
       - "-c"
       - |
         # Create required directories
-        mkdir -p ~/.local/bin ~/.local/share ~/.npm-global
+        mkdir -p ~/.local/bin ~/.local/share ~/.npm-global \
+                 ~/.openclaw/agents/main/sessions \
+                 ~/.openclaw/credentials
+        chmod 700 ~/.openclaw
+
+        # Seed config (bind-mounting a file into a named volume
+        # causes Docker to create a directory — copy instead)
+        rm -rf ~/.openclaw/openclaw.json 2>/dev/null
+        cp /mnt/openclaw.json ~/.openclaw/openclaw.json
 
         # Create openclaw CLI alias
         echo '#!/bin/sh' > ~/.local/bin/openclaw
