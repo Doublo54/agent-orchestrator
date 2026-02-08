@@ -5,34 +5,154 @@
       "mode": "token"
     }
   },
+
   "agents": {
     "defaults": {
       "model": {
-        "primary": "openrouter/qwen/qwen3-coder-next"
+        "primary": "openrouter/openrouter/pony-alpha"
       }
     },
     "list": [
       {
-        "id": "main",
+        "id": "coordinator",
+        "default": true,
         "identity": {
-          "name": "Bot"
+          "name": "Zoo Keeper",
+          "emoji": "🦍"
+        },
+        "workspace": "/home/node/.openclaw/workspace",
+        "groupChat": {
+          "mentionPatterns": ["@DeFiZoo", "@defizoo", "@Zoo Keeper", "@zookeeper"]
+        }
+      },
+      {
+        "id": "frontend",
+        "identity": {
+          "name": "Frontend Elephant",
+          "emoji": "🐘"
+        },
+        "workspace": "/home/node/.openclaw/workspace-frontend",
+        "groupChat": {
+          "mentionPatterns": ["@DeFiZoo", "@defizoo", "Frontend", "frontend"]
+        }
+      },
+      {
+        "id": "be",
+        "identity": {
+          "name": "API Octopus",
+          "emoji": "🐙"
+        },
+        "workspace": "/home/node/.openclaw/workspace-backend",
+        "groupChat": {
+          "mentionPatterns": ["@DeFiZoo", "@defizoo"]
+        }
+      },
+      {
+        "id": "sol",
+        "identity": {
+          "name": "Solidity Monkey",
+          "emoji": "🐒"
+        },
+        "workspace": "/home/node/.openclaw/workspace-solidity",
+        "groupChat": {
+          "mentionPatterns": ["@DeFiZoo", "@defizoo"]
+        }
+      },
+      {
+        "id": "hr",
+        "identity": {
+          "name": "HR Parrot",
+          "emoji": "🦜"
+        },
+        "workspace": "/home/node/.openclaw/workspace-hr",
+        "groupChat": {
+          "mentionPatterns": ["@DeFiZoo", "@defizoo"]
         }
       }
     ]
   },
+
+  "bindings": [
+    {
+      "agentId": "fe",
+      "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1470104434695471124" } }
+    },
+    {
+      "agentId": "be",
+      "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1470104452051763363" } }
+    },
+    {
+      "agentId": "sol",
+      "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1470104466031116453" } }
+    },
+    {
+      "agentId": "hr",
+      "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1470104475011121264" } }
+    },
+    {
+      "agentId": "coordinator",
+      "match": { "channel": "discord" }
+    }
+  ],
+
+  "tools": {
+    "agentToAgent": {
+      "enabled": true,
+      "allow": ["coordinator", "fe", "be", "sol", "hr"]
+    },
+    "web": {
+      "search": { "enabled": true },
+      "fetch": { "enabled": true }
+    },
+    "exec": {
+      "pathPrepend": ["/usr/local/bin"]
+    }
+  },
+
   "channels": {
     "discord": {
       "enabled": true,
       "dm": {
-        "enabled": true
+        "enabled": true,
+        "policy": "pairing"
       },
       "guilds": {
-        "*": {
-          "requireMention": true
+        "1470071409240969389": {
+          "requireMention": true,
+          "channels": {
+            "1470104434695471124": {
+              "allow": true,
+              "requireMention": false
+            },
+            "1470104452051763363": {
+              "allow": true,
+              "requireMention": false
+            },
+            "1470104466031116453": {
+              "allow": true,
+              "requireMention": false
+            },
+            "1470104475011121264": {
+              "allow": true,
+              "requireMention": false
+            },
+            "*": {
+              "allow": true,
+              "requireMention": true
+            }
+          }
         }
-      }
+      },
+      "historyLimit": 30
     }
   },
+
+  "commands": {
+    "native": "auto",
+    "text": true,
+    "config": true
+  },
+
   "logging": {
     "level": "info",
     "consoleStyle": "pretty"
