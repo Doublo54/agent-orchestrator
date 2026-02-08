@@ -1,27 +1,18 @@
 # ============================================================
-# Agent Orchestrator — Docker Compose
+# Discord Bot — Docker Compose
 # ============================================================
-# Runs OpenClaw (https://openclaw.ai) in Docker with
-# Discord, GitHub, and coding tools.
+# Runs OpenClaw as a simple Discord chat bot.
 #
 # Quick start:
 #   cp .env.example .env        # fill in your tokens
 #   docker compose up -d        # build + start
 #   docker compose logs -f      # watch it boot
 #
-# CLI commands (while gateway is running):
-#   docker compose exec openclaw openclaw health
-#   docker compose exec openclaw openclaw doctor
-#   docker compose exec openclaw openclaw channels status
-#   docker compose exec openclaw openclaw dashboard --no-open
-#
-# Docs: https://docs.openclaw.ai/install/docker
+# Docs: https://docs.openclaw.ai/channels/discord
 # ============================================================
 
 services:
   openclaw:
-    # Build directly from the OpenClaw repo — uses their Dockerfile.
-    # Pin to a release tag for stability, or use #main for latest.
     build:
       context: "https://github.com/openclaw/openclaw.git#main"
     container_name: openclaw-gateway
@@ -41,53 +32,33 @@ services:
       - OPENCLAW_GATEWAY_BIND=${OPENCLAW_GATEWAY_BIND:-lan}
       - OPENCLAW_GATEWAY_PORT=18789
       - OPENCLAW_DISABLE_BONJOUR=1
-      # LLM providers (set at least one)
+      # LLM provider
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
-      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       # Discord
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
-      # GitHub
-      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
-      # PATH — include tool install locations
+      # PATH
       - PATH=/home/node/.local/bin:/home/node/.npm-global/bin:/usr/local/bin:/usr/bin:/bin
 
     volumes:
-      # Our config — bind-mounted from repo (read-only) - MUST come first
       - ./state/openclaw.json:/home/node/.openclaw/openclaw.json:ro
-      # Our workspace (skills, AGENTS.md, SOUL.md) — bind-mounted from repo
       - ./workspace:/home/node/.openclaw/workspace
-      # Persistent OpenClaw state (sessions, credentials, memory) - specific subdirs only
       - openclaw_state:/home/node/.openclaw/state
       - openclaw_sessions:/home/node/.openclaw/sessions
       - openclaw_credentials:/home/node/.openclaw/credentials
       - openclaw_memory:/home/node/.openclaw/memory
-      # Docker socket for agent sandboxing (code execution in containers)
-      - /var/run/docker.sock:/var/run/docker.sock
-      # Persistent tool installs (survive container rebuilds)
-      - openclaw_local_bin:/home/node/.local/bin
-      - openclaw_npm_global:/home/node/.npm-global
 
     command:
       - sh
       - "-c"
       - |
-        # Create directories
-        mkdir -p ~/.local/bin ~/.local/share ~/.npm-global
-
-        # Create openclaw CLI alias
+        mkdir -p ~/.local/bin
         echo '#!/bin/sh' > ~/.local/bin/openclaw
         echo 'exec node /app/dist/index.js "$$@"' >> ~/.local/bin/openclaw
         chmod +x ~/.local/bin/openclaw
 
-        # Install gh CLI for GitHub PR workflows (if not already installed)
-        which gh >/dev/null 2>&1 || npm install -g --prefix ~/.npm-global gh 2>/dev/null || true
-
-        # Run doctor to fix any config issues
         openclaw doctor --fix 2>/dev/null || true
 
         sleep 1
-        # Start gateway (exec replaces shell — proper signal handling)
         exec node dist/index.js gateway --bind lan --port 18789 --allow-unconfigured
 
     healthcheck:
@@ -106,7 +77,3 @@ volumes:
     name: openclaw_credentials
   openclaw_memory:
     name: openclaw_memory
-  openclaw_local_bin:
-    name: openclaw_local_bin
-  openclaw_npm_global:
-    name: openclaw_npm_global

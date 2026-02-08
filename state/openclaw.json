@@ -1,22 +1,10 @@
 {
   "agents": {
-    "defaults": {
-      "workspace": "~/.openclaw/workspace",
-      "sandbox": {
-        "mode": "non-main",
-        "scope": "agent",
-        "workspaceAccess": "rw"
-      }
-    },
     "list": [
       {
         "id": "main",
         "identity": {
-          "name": "Claw",
-          "emoji": "🦞"
-        },
-        "groupChat": {
-          "mentionPatterns": ["@Claw", "🦞"]
+          "name": "Bot"
         }
       }
     ]
