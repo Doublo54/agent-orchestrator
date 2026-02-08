@@ -62,16 +62,17 @@ services:
                  ~/.openclaw/credentials
         chmod 700 ~/.openclaw
 
-        # Seed config before doctor so it operates on our config
-        cp /mnt/state/openclaw.json ~/.openclaw/openclaw.json
-
         # Create openclaw CLI alias
         echo '#!/bin/sh' > ~/.local/bin/openclaw
         echo 'exec node /app/dist/index.js "$@"' >> ~/.local/bin/openclaw
         chmod +x ~/.local/bin/openclaw
 
-        openclaw doctor --fix
+        # Run doctor first (without --fix to avoid dropping valid keys)
+        openclaw doctor
         sleep 1
+
+        # Now apply our config — overwrites whatever doctor may have written
+        cp /mnt/state/openclaw.json ~/.openclaw/openclaw.json
 
         # Start gateway (replaces this shell)
         exec node dist/index.js gateway --bind lan --port 18789 --allow-unconfigured

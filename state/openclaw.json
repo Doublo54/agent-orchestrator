@@ -1,8 +1,11 @@
 {
+  "identity": {
+    "name": "Bot"
+  },
   "gateway": {
     "mode": "local",
     "auth": {
-      "enabled": true
+      "mode": "token"
     }
   },
   "agents": {
@@ -10,22 +13,14 @@
       "model": {
         "primary": "openrouter/anthropic/claude-sonnet-4-5"
       }
-    },
-    "list": [
-      {
-        "id": "main",
-        "identity": {
-          "name": "Bot"
-        }
-      }
-    ]
+    }
   },
   "channels": {
     "discord": {
       "enabled": true,
+      "dmPolicy": "pairing",
       "dm": {
-        "enabled": true,
-        "policy": "pairing"
+        "enabled": true
       },
       "guilds": {
         "*": {
