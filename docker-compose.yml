@@ -51,15 +51,32 @@ services:
       - sh
       - "-c"
       - |
-        mkdir -p ~/.local/bin
-        echo '#!/bin/sh' > ~/.local/bin/openclaw
-        echo 'exec node /app/dist/index.js "$$@"' >> ~/.local/bin/openclaw
-        chmod +x ~/.local/bin/openclaw
+        # --- Ensure all expected directories exist ---
+        mkdir -p /home/node/.openclaw/agents/main/sessions \
+                 /home/node/.openclaw/credentials \
+                 /home/node/.openclaw/state \
+                 /home/node/.openclaw/sessions \
+                 /home/node/.openclaw/memory \
+                 /home/node/.openclaw/workspace
 
-        openclaw doctor --fix 2>/dev/null || true
+        # --- Fix ownership (volumes are created as root) ---
+        chown -R node:node /home/node/.openclaw /home/node/.local 2>/dev/null || true
+        chmod 700 /home/node/.openclaw
+
+        # --- Create openclaw CLI shim ---
+        mkdir -p /home/node/.local/bin
+        echo '#!/bin/sh' > /home/node/.local/bin/openclaw
+        echo 'exec node /app/dist/index.js "$$@"' >> /home/node/.local/bin/openclaw
+        chmod +x /home/node/.local/bin/openclaw
+        chown -R node:node /home/node/.local
+
+        # --- Run doctor as node user ---
+        su -s /bin/sh node -c 'openclaw doctor --fix 2>/dev/null || true'
 
         sleep 1
-        exec node dist/index.js gateway --bind lan --port 18789 --allow-unconfigured
+
+        # --- Drop to node user and start gateway ---
+        exec su -s /bin/sh node -c 'exec node dist/index.js gateway --bind lan --port 18789 --allow-unconfigured'
 
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:18789/health"]

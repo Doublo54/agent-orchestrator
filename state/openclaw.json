@@ -1,4 +1,10 @@
 {
+  "gateway": {
+    "mode": "local",
+    "auth": {
+      "enabled": true
+    }
+  },
   "agents": {
     "list": [
       {
