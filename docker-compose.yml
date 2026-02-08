@@ -1,14 +1,21 @@
 # ============================================================
-# Discord Bot — Docker Compose
+# DeFiZoo Agent Orchestrator — Docker Compose
 # ============================================================
-# Runs OpenClaw as a simple Discord chat bot.
+# Runs OpenClaw with multi-agent routing:
+#   coordinator  → general questions, DMs, cross-domain coordination
+#   frontend     → frontend development (brains/frontend)
+#   backend      → backend development (brains/backend)
+#   solidity     → Solidity / smart contracts (brains/solidity)
+#   hr           → HR / people ops (brains/hr)
 #
 # Quick start:
-#   cp .env.example .env        # fill in your tokens
+#   cp .env.example .env        # fill in your tokens + Discord IDs
+#   ./setup-brains.sh           # clone/init brain repos
 #   docker compose up -d        # build + start
 #   docker compose logs -f      # watch it boot
 #
 # Docs: https://docs.openclaw.ai/channels/discord
+#       https://docs.openclaw.ai/concepts/multi-agent
 # ============================================================
 
 version: '3.8'
@@ -40,17 +47,26 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
       - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - OPENCODE_API_KEY=${OPENCODE_API_KEY:-}
       # Discord
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
-      # GitHub
+      # GitHub — used for authenticated git operations
       - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - GITHUB_ORG=${GITHUB_ORG:-DeFiZooKeeper}
       # PATH
       - PATH=/home/node/.local/bin:/home/node/.npm-global/bin:/usr/local/bin:/usr/bin:/bin
 
     volumes:
       - openclaw_config:/home/node/.openclaw
+      # Config (read-only)
       - ./state:/mnt/state:ro
+      # Coordinator workspace
       - ./workspace:/home/node/.openclaw/workspace
+      # Brain repos → agent workspaces
+      - ./brains/fe:/home/node/.openclaw/workspace-frontend
+      - ./brains/be:/home/node/.openclaw/workspace-backend
+      - ./brains/sol:/home/node/.openclaw/workspace-solidity
+      - ./brains/hr:/home/node/.openclaw/workspace-hr
 
     command:
       - sh
@@ -58,23 +74,39 @@ services:
       - |
         # Create required directories
         mkdir -p ~/.local/bin ~/.local/share ~/.npm-global \
-                 ~/.openclaw/agents/main/sessions \
                  ~/.openclaw/credentials
-        chmod 700 ~/.openclaw
+
+        # Create agent session directories
+        for agent in coordinator frontend backend solidity hr; do
+          mkdir -p ~/.openclaw/agents/$agent/sessions
+        done
 
         # Create openclaw CLI alias
         echo '#!/bin/sh' > ~/.local/bin/openclaw
         echo 'exec node /app/dist/index.js "$@"' >> ~/.local/bin/openclaw
         chmod +x ~/.local/bin/openclaw
 
-        # Run doctor first (without --fix to avoid dropping valid keys)
+        # --- Configure git identity for the agent ---
+        git config --global user.name "Zoo Keeper"
+        git config --global user.email "zookeeper@defizoo.ai"
+        git config --global init.defaultBranch main
+
+        # --- Install OpenCode CLI if not present ---
+        if ! command -v opencode >/dev/null 2>&1; then
+          echo "[setup] Installing OpenCode CLI..."
+          npm install -g opencode-ai 2>/dev/null \
+            && echo "[setup] opencode installed" \
+            || echo "[setup] opencode install failed (non-fatal)"
+        fi
+
+        # Run doctor first
         openclaw doctor
         sleep 1
 
-        # Now apply our config — overwrites whatever doctor may have written
+        # Apply our config
         cp /mnt/state/openclaw.json ~/.openclaw/openclaw.json
 
-        # Start gateway (replaces this shell)
+        # Start gateway
         exec node dist/index.js gateway --bind lan --port 18789 --allow-unconfigured
 
     healthcheck:

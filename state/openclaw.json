@@ -37,25 +37,25 @@
         }
       },
       {
-        "id": "be",
+        "id": "backend",
         "identity": {
           "name": "API Octopus",
           "emoji": "🐙"
         },
         "workspace": "/home/node/.openclaw/workspace-backend",
         "groupChat": {
-          "mentionPatterns": ["@DeFiZoo", "@defizoo"]
+          "mentionPatterns": ["@DeFiZoo", "@defizoo", "Backend", "backend"]
         }
       },
       {
-        "id": "sol",
+        "id": "solidity",
         "identity": {
           "name": "Solidity Monkey",
           "emoji": "🐒"
         },
         "workspace": "/home/node/.openclaw/workspace-solidity",
         "groupChat": {
-          "mentionPatterns": ["@DeFiZoo", "@defizoo"]
+          "mentionPatterns": ["@DeFiZoo", "@defizoo", "Solidity", "solidity"]
         }
       },
       {
@@ -66,7 +66,18 @@
         },
         "workspace": "/home/node/.openclaw/workspace-hr",
         "groupChat": {
-          "mentionPatterns": ["@DeFiZoo", "@defizoo"]
+          "mentionPatterns": ["@DeFiZoo", "@defizoo", "HR", "hr"]
+        }
+      },
+      {
+        "id": "marketing",
+        "identity": {
+          "name": "Marketing Monkey",
+          "emoji": "🐵"
+        },
+        "workspace": "/home/node/.openclaw/workspace-marketing",
+        "groupChat": {
+          "mentionPatterns": ["@DeFiZoo", "@defizoo", "Marketing", "marketing"]
         }
       }
     ]
@@ -74,20 +85,24 @@
 
   "bindings": [
     {
-      "agentId": "fe",
+      "agentId": "frontend",
       "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1470104434695471124" } }
     },
     {
-      "agentId": "be",
+      "agentId": "backend",
       "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1470104452051763363" } }
     },
     {
-      "agentId": "sol",
+      "agentId": "solidity",
       "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1470104466031116453" } }
     },
     {
       "agentId": "hr",
       "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1470104475011121264" } }
+    },
+    {
+      "agentId": "marketing",
+      "match": { "channel": "discord", "peer": { "kind": "channel", "id": "1470173926410686620" } }
     },
     {
       "agentId": "coordinator",
@@ -98,7 +113,7 @@
   "tools": {
     "agentToAgent": {
       "enabled": true,
-      "allow": ["coordinator", "fe", "be", "sol", "hr"]
+      "allow": ["coordinator", "frontend", "backend", "solidity", "hr"]
     },
     "web": {
       "search": { "enabled": true },
