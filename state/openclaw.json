@@ -9,7 +9,7 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "openrouter/stepfun/step-3.5-flash:free"
+        "primary": "openrouter/qwen/qwen3-coder-next"
       }
     },
     "list": [
