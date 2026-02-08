@@ -53,12 +53,15 @@ services:
       - PATH=/home/node/.local/bin:/home/node/.npm-global/bin:/usr/local/bin:/usr/bin:/bin
 
     volumes:
-      # Persistent OpenClaw state (sessions, credentials, memory)
-      - openclaw_state:/home/node/.openclaw
+      # Our config — bind-mounted from repo (read-only) - MUST come first
+      - ./state/openclaw.json:/home/node/.openclaw/openclaw.json:ro
       # Our workspace (skills, AGENTS.md, SOUL.md) — bind-mounted from repo
       - ./workspace:/home/node/.openclaw/workspace
-      # Our config — bind-mounted from repo (read-only)
-      - ./state/openclaw.json:/home/node/.openclaw/openclaw.json:ro
+      # Persistent OpenClaw state (sessions, credentials, memory) - specific subdirs only
+      - openclaw_state:/home/node/.openclaw/state
+      - openclaw_sessions:/home/node/.openclaw/sessions
+      - openclaw_credentials:/home/node/.openclaw/credentials
+      - openclaw_memory:/home/node/.openclaw/memory
       # Docker socket for agent sandboxing (code execution in containers)
       - /var/run/docker.sock:/var/run/docker.sock
       # Persistent tool installs (survive container rebuilds)
@@ -97,6 +100,12 @@ services:
 volumes:
   openclaw_state:
     name: openclaw_state
+  openclaw_sessions:
+    name: openclaw_sessions
+  openclaw_credentials:
+    name: openclaw_credentials
+  openclaw_memory:
+    name: openclaw_memory
   openclaw_local_bin:
     name: openclaw_local_bin
   openclaw_npm_global:
