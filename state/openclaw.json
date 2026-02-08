@@ -9,6 +9,7 @@
     "list": [
       {
         "id": "main",
+        "model": "openrouter/qwen/qwen3-coder-next",
         "identity": {
           "name": "Bot"
         }
