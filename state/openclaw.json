@@ -6,10 +6,14 @@
     }
   },
   "agents": {
+    "defaults": {
+      "model": {
+        "primary": "openrouter/anthropic/claude-sonnet-4-5"
+      }
+    },
     "list": [
       {
         "id": "main",
-        "model": "openrouter/qwen/qwen3-coder-next",
         "identity": {
           "name": "Bot"
         }
