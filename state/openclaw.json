@@ -1,7 +1,4 @@
 {
-  "identity": {
-    "name": "Bot"
-  },
   "gateway": {
     "mode": "local",
     "auth": {
@@ -11,14 +8,21 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "openrouter/anthropic/claude-sonnet-4-5"
+        "primary": "openrouter/qwen/qwen3-coder-next"
       }
-    }
+    },
+    "list": [
+      {
+        "id": "main",
+        "identity": {
+          "name": "Bot"
+        }
+      }
+    ]
   },
   "channels": {
     "discord": {
       "enabled": true,
-      "dmPolicy": "pairing",
       "dm": {
         "enabled": true
       },
