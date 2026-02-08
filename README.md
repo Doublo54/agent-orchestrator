@@ -24,7 +24,7 @@ You (Discord)                     Your Server (Docker)
 
 - Docker Engine 24+ with Compose v2
 - A Discord bot token — [create one](https://discord.com/developers/applications)
-- An Anthropic API key — [get one](https://console.anthropic.com/)
+- An OpenRouter API key — [get one](https://openrouter.ai/keys)
 
 ## Quick Start
 
@@ -33,7 +33,7 @@ git clone https://github.com/your-org/agent-orchestrator.git
 cd agent-orchestrator
 
 cp .env.example .env
-# Edit .env — fill in ANTHROPIC_API_KEY and DISCORD_BOT_TOKEN
+# Edit .env — fill in OPENROUTER_API_KEY and DISCORD_BOT_TOKEN
 
 docker compose up -d
 docker compose logs -f

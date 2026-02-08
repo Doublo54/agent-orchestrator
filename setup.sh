@@ -21,7 +21,7 @@ step()  { echo -e "\n${BOLD}--- $* ---${NC}"; }
 
 echo ""
 echo -e "${BOLD}Discord Bot Setup${NC}"
-echo -e "OpenClaw + Discord + Anthropic"
+echo -e "OpenClaw + Discord + OpenRouter"
 echo ""
 
 # --- Prerequisites ---
@@ -53,8 +53,8 @@ echo ""
 echo "Fill in your API keys (press Enter to skip any):"
 echo ""
 
-read -rp "  ANTHROPIC_API_KEY: " val
-[ -n "$val" ] && sed -i.bak "s/^ANTHROPIC_API_KEY=.*/ANTHROPIC_API_KEY=$val/" .env && rm -f .env.bak && info "Set ANTHROPIC_API_KEY"
+read -rp "  OPENROUTER_API_KEY: " val
+[ -n "$val" ] && sed -i.bak "s/^OPENROUTER_API_KEY=.*/OPENROUTER_API_KEY=$val/" .env && rm -f .env.bak && info "Set OPENROUTER_API_KEY"
 
 read -rp "  DISCORD_BOT_TOKEN: " val
 [ -n "$val" ] && sed -i.bak "s/^DISCORD_BOT_TOKEN=.*/DISCORD_BOT_TOKEN=$val/" .env && rm -f .env.bak && info "Set DISCORD_BOT_TOKEN"

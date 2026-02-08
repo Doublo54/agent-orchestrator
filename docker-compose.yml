@@ -33,7 +33,7 @@ services:
       - OPENCLAW_GATEWAY_PORT=18789
       - OPENCLAW_DISABLE_BONJOUR=1
       # LLM provider
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       # Discord
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
       # PATH
