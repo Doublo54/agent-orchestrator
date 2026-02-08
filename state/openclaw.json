@@ -1,78 +1,42 @@
-// ============================================================
-// OpenClaw Configuration
-// ============================================================
-// JSON5 format (comments + trailing commas allowed).
-// Full reference: https://docs.openclaw.ai/gateway/configuration
-//
-// This file is read by the OpenClaw gateway on startup.
-// Edit it and restart the gateway to apply changes.
-// ============================================================
 {
-  // --- Agent workspace ---
-  agents: {
-    defaults: {
-      workspace: "~/.openclaw/workspace",
-
-      // Sandboxing: run tool execution in isolated Docker containers.
-      // Requires Docker socket mounted. Recommended for security.
-      sandbox: {
-        mode: "non-main",       // off | non-main | all
-        scope: "agent",         // session | agent | shared
-        workspaceAccess: "rw",  // none | ro | rw
-      },
+  "agents": {
+    "defaults": {
+      "workspace": "~/.openclaw/workspace",
+      "sandbox": {
+        "mode": "non-main",
+        "scope": "agent",
+        "workspaceAccess": "rw"
+      }
     },
-
-    list: [
+    "list": [
       {
-        id: "main",
-        identity: {
-          name: "Claw",
-          emoji: "🦞",
+        "id": "main",
+        "identity": {
+          "name": "Claw",
+          "emoji": "🦞"
         },
-        // Group chat: respond when mentioned by name or emoji
-        groupChat: {
-          mentionPatterns: ["@Claw", "🦞"],
-        },
-      },
-    ],
+        "groupChat": {
+          "mentionPatterns": ["@Claw", "🦞"]
+        }
+      }
+    ]
   },
-
-  // --- Discord channel ---
-  // Docs: https://docs.openclaw.ai/channels/discord
-  channels: {
-    discord: {
-      enabled: true,
-      // Token comes from DISCORD_BOT_TOKEN env var (no need to repeat here)
-
-      // DM policy: "pairing" requires approval, "open" allows anyone
-      dm: {
-        enabled: true,
-        policy: "pairing",
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "dm": {
+        "enabled": true,
+        "policy": "pairing"
       },
-
-      // Guild (server) settings
-      // Replace YOUR_GUILD_ID with your Discord server ID
-      // (Right-click server name → Copy Server ID with Developer Mode on)
-      guilds: {
+      "guilds": {
         "*": {
-          requireMention: true,   // Only respond when @mentioned
-        },
-        // Uncomment and customize for your server:
-        // "YOUR_GUILD_ID": {
-        //   requireMention: true,
-        //   users: ["YOUR_USER_ID"],  // Only allow specific users
-        //   channels: {
-        //     "general": { allow: true, requireMention: true },
-        //     "bot-chat": { allow: true, requireMention: false },
-        //   },
-        // },
-      },
-    },
+          "requireMention": true
+        }
+      }
+    }
   },
-
-  // --- Logging ---
-  logging: {
-    level: "info",
-    consoleStyle: "pretty",
-  },
+  "logging": {
+    "level": "info",
+    "consoleStyle": "pretty"
+  }
 }
