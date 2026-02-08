@@ -11,86 +11,72 @@
 # Docs: https://docs.openclaw.ai/channels/discord
 # ============================================================
 
+version: '3.8'
+
 services:
   openclaw:
     build:
-      context: "https://github.com/openclaw/openclaw.git#main"
+      context: "https://github.com/openclaw/openclaw.git#v2026.2.6"
+      dockerfile: Dockerfile
     container_name: openclaw-gateway
     restart: unless-stopped
     init: true
+    user: root
 
     ports:
       - "127.0.0.1:${OPENCLAW_PORT:-18789}:18789"
 
     environment:
       - HOME=/home/node
-      - NODE_ENV=production
       - TERM=xterm-256color
+      - NODE_ENV=production
       - TZ=${TZ:-UTC}
       # Gateway
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-}
       - OPENCLAW_GATEWAY_BIND=${OPENCLAW_GATEWAY_BIND:-lan}
       - OPENCLAW_GATEWAY_PORT=18789
       - OPENCLAW_DISABLE_BONJOUR=1
-      # LLM provider
+      # LLM providers
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       # Discord
       - DISCORD_BOT_TOKEN=${DISCORD_BOT_TOKEN:-}
+      # GitHub
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
       # PATH
       - PATH=/home/node/.local/bin:/home/node/.npm-global/bin:/usr/local/bin:/usr/bin:/bin
 
     volumes:
+      - openclaw_config:/home/node/.openclaw
       - ./state/openclaw.json:/home/node/.openclaw/openclaw.json:ro
       - ./workspace:/home/node/.openclaw/workspace
-      - openclaw_state:/home/node/.openclaw/state
-      - openclaw_sessions:/home/node/.openclaw/sessions
-      - openclaw_credentials:/home/node/.openclaw/credentials
-      - openclaw_memory:/home/node/.openclaw/memory
 
     command:
       - sh
       - "-c"
       - |
-        # --- Ensure all expected directories exist ---
-        mkdir -p /home/node/.openclaw/agents/main/sessions \
-                 /home/node/.openclaw/credentials \
-                 /home/node/.openclaw/state \
-                 /home/node/.openclaw/sessions \
-                 /home/node/.openclaw/memory \
-                 /home/node/.openclaw/workspace
+        # Create required directories
+        mkdir -p ~/.local/bin ~/.local/share ~/.npm-global
 
-        # --- Fix ownership (volumes are created as root) ---
-        chown -R node:node /home/node/.openclaw /home/node/.local 2>/dev/null || true
-        chmod 700 /home/node/.openclaw
+        # Create openclaw CLI alias
+        echo '#!/bin/sh' > ~/.local/bin/openclaw
+        echo 'exec node /app/dist/index.js "$@"' >> ~/.local/bin/openclaw
+        chmod +x ~/.local/bin/openclaw
 
-        # --- Create openclaw CLI shim ---
-        mkdir -p /home/node/.local/bin
-        echo '#!/bin/sh' > /home/node/.local/bin/openclaw
-        echo 'exec node /app/dist/index.js "$$@"' >> /home/node/.local/bin/openclaw
-        chmod +x /home/node/.local/bin/openclaw
-        chown -R node:node /home/node/.local
-
-        # --- Run doctor as node user ---
-        su -s /bin/sh node -c 'openclaw doctor --fix 2>/dev/null || true'
-
+        openclaw doctor --fix
         sleep 1
 
-        # --- Drop to node user and start gateway ---
-        exec su -s /bin/sh node -c 'exec node dist/index.js gateway --bind lan --port 18789 --allow-unconfigured'
+        # Start gateway (replaces this shell)
+        exec node dist/index.js gateway --bind lan --port 18789 --allow-unconfigured
 
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:18789/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 60s
+      start_period: 120s
 
 volumes:
-  openclaw_state:
-    name: openclaw_state
-  openclaw_sessions:
-    name: openclaw_sessions
-  openclaw_credentials:
-    name: openclaw_credentials
-  openclaw_memory:
-    name: openclaw_memory
+  openclaw_config:
+    name: openclaw_config
